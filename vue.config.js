@@ -42,12 +42,12 @@ module.exports = {
         }
       },
       // 参照 src/api/config/productLine.js
-      // 当请求地址以/kenaito-config/开头时，转变为 target + '/api/config' + 除'/kenaito-config'以外的路径
+      // 当请求地址以/kenaito-config/开头时，转变为 target + '/api/configFile' + 除'/kenaito-config'以外的路径
       '/kenaito-config/': {
         target: process.env.VUE_APP_DEVOPS_BASE_API,
         changeOrigin: true,
         pathRewrite: {
-          '^/kenaito-config': '/api/config'
+          '^/kenaito-config': '/api/configFile'
         }
       }
     }
