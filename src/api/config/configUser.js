@@ -1,4 +1,4 @@
-import request from '@/utils/requestDevops'
+import request from '@/utils/requestConfig'
 
 export function queryList(data) {
   return request({

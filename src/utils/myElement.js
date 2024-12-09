@@ -121,31 +121,6 @@ const MessageBoxUtil = {
     this.fullConfirm(context, message, 'w', confirmCallBack, cancelCallBack)
   },
   /**
-   * 数据输入对话框
-   *  @param context 上下文
-   * @param title 标题提示
-   * @param patternText 正则表达式
-   * @param errorMsg 校验失败消息内容
-   * @param confirmCallBack 校验通过回调
-   * @param cancelCallBack 取消回调
-   */
-  textInputConfirm: function(context, title, patternText, errorMsg, confirmCallBack, cancelCallBack) {
-    context.$prompt('', title, {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      inputPattern: patternText,
-      inputErrorMessage: errorMsg
-    }).then(({ value }) => {
-      if (confirmCallBack != null) {
-        confirmCallBack(value)
-      }
-    }).catch(() => {
-      if (cancelCallBack != null) {
-        cancelCallBack()
-      }
-    })
-  },
-  /**
    * 确认内容消息框
    * @param context 上下文
    * @param title 标题
