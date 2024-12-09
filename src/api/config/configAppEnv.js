@@ -15,3 +15,11 @@ export function create(data) {
     data: data
   })
 }
+
+export function remove(data) {
+  return request({
+    url: 'kenaito-config/env/remove',
+    method: 'post',
+    data: data
+  })
+}

@@ -62,14 +62,41 @@
       </el-col>
       <el-col :span="16">
         <el-card>
-          <el-row :gutter="20">
-            <el-col :span="3">当前应用：</el-col>
-            <el-col :span="5">
+          <el-descriptions :column="2" border>
+            <template slot="extra">
+              <el-button
+                v-permission="permission.del"
+                size="mini"
+                type="danger"
+                icon="el-icon-plus"
+                @click="onDeleteEnv"
+              >删除环境</el-button>
+              <el-button
+                v-permission="permission.add"
+                size="mini"
+                type="primary"
+                icon="el-icon-plus"
+                @click="onAddEnv"
+              >新增环境</el-button>
+              <el-button
+                v-permission="permission.add"
+                size="mini"
+                type="primary"
+                icon="el-icon-plus"
+                @click="uploadConfigFile"
+              >上传配置</el-button>
+            </template>
+            <el-descriptions-item>
+              <template slot="label">
+                当前应用
+              </template>
               <font v-if="currentRow.appName && currentRow.appName !== ''">{{ currentRow.appName }}</font>
               <font v-else color="red">未选中应用</font>
-            </el-col>
-            <el-col :span="3" style="padding-top: 5px">选择环境：</el-col>
-            <el-col :span="5">
+            </el-descriptions-item>
+            <el-descriptions-item>
+              <template slot="label">
+                环境
+              </template>
               <el-select
                 v-model="currentEnvCode"
                 clearable
@@ -85,26 +112,8 @@
                   :value="item.value"
                 />
               </el-select>
-            </el-col>
-            <el-col :span="3">
-              <el-button
-                v-permission="permission.add"
-                size="mini"
-                type="primary"
-                icon="el-icon-plus"
-                @click="onAddEnv"
-              >新增环境</el-button>
-            </el-col>
-            <el-col :span="3">
-              <el-button
-                v-permission="permission.add"
-                size="mini"
-                type="primary"
-                icon="el-icon-plus"
-                @click="uploadConfigFile"
-              >上传配置</el-button>
-            </el-col>
-          </el-row>
+            </el-descriptions-item>
+          </el-descriptions>
         </el-card>
         <el-card style="margin-top: 20px">
           <el-table :data="envConfigFileDataSource" row-key="id">
@@ -416,6 +425,28 @@ export default {
       })
     },
     // ok
+    onDeleteEnv() {
+      const _this = this
+      if (_this.currentEnvCode === undefined || _this.currentEnvCode === null || _this.currentEnvCode === '') {
+        MessageUtil.error(_this, '请选择应用和环境后，再试')
+        return
+      }
+      MessageBoxUtil.deleteMessageConfirm(_this, '是否删除当前环境?', () => {
+        configAppEnvService.remove({
+          appId: _this.currentRow.id,
+          envCode: _this.currentEnvCode
+        }).then(res => {
+          MessageUtil.success(_this, '操作成功')
+          configAppEnvService.queryList({ appId: _this.currentRow.id }).then(res => {
+            _this.envCodeDataSource = res || []
+          })
+          _this.envConfigFileDataSource = []
+          _this.currentEnvCode = ''
+        }).catch(e => {
+        })
+      }, null)
+    },
+    // ok
     onAddEnv() {
       const _this = this
       const currentRow = _this.currentRow
@@ -485,6 +516,14 @@ export default {
         if (valid) {
           _this.uploadForm.loading = true
           _this.$refs.uploadClient.submit()
+          setTimeout(() => {
+            configFileService.queryList({
+              appId: _this.currentRow.id,
+              envCode: _this.currentEnvCode
+            }).then(res => {
+              _this.envConfigFileDataSource = res || []
+            })
+          }, 2000)
           MessageUtil.success(_this, '上传成功')
           this.uploadForm.visible = false
         } else {
