@@ -59,6 +59,19 @@
             @current-change="handleCurrentChange"
           />
         </el-card>
+        <el-card style="margin-top: 10px">
+          <el-table
+            :data="clientListData"
+          >
+            <el-table-column label="IP地址" prop="ip" />
+            <el-table-column label="是否在线" prop="isActive">
+              <template slot-scope="scope">
+                <el-tag v-if="scope.row.isActive" type="success">online</el-tag>
+                <el-tag v-else type="error">offline</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
       </el-col>
       <el-col :span="16">
         <el-card>
@@ -112,6 +125,12 @@
                   :value="item.value"
                 />
               </el-select>
+            </el-descriptions-item>
+            <el-descriptions-item>
+              <template slot="label">
+                操作
+              </template>
+              <el-button type="primary">发布</el-button>
             </el-descriptions-item>
           </el-descriptions>
         </el-card>
@@ -278,7 +297,8 @@ export default {
         values: {
           file: null
         }
-      }
+      },
+      clientListData: []
     }
   },
   computed: {
@@ -417,12 +437,22 @@ export default {
       const _this = this
       _this.currentEnvCode = envCode
       const currentRow = _this.currentRow
-      configFileService.queryList({
-        appId: currentRow.id,
-        envCode: envCode
-      }).then(res => {
-        _this.envConfigFileDataSource = res || []
-      })
+      if (envCode) {
+        // query file list
+        configFileService.queryList({
+          appId: currentRow.id,
+          envCode: envCode
+        }).then(res => {
+          _this.envConfigFileDataSource = res || []
+        })
+        // query client list
+        configAppService.queryClientList({
+          envCode: envCode,
+          appName: currentRow.appName
+        }).then(res => {
+          _this.clientListData = res || []
+        })
+      }
     },
     // ok
     onDeleteEnv() {
@@ -525,7 +555,9 @@ export default {
             })
           }, 2000)
           MessageUtil.success(_this, '上传成功')
-          this.uploadForm.visible = false
+          _this.uploadForm.loading = false
+          _this.uploadForm.values.file = null
+          _this.uploadForm.visible = false
         } else {
           return false
         }

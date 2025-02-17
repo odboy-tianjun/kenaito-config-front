@@ -23,3 +23,12 @@ export function remove(data) {
     data: data
   })
 }
+
+export function queryClientList(data) {
+  return request({
+    url: 'kenaito-config/app/queryClientList',
+    method: 'post',
+    data: data
+  })
+}
+
